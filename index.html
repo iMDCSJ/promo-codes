@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Your Promo Code</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', 'Arial', sans-serif;
+            background: transparent;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .product-image {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .logo {
+            margin: 15px 0;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 26px;
+            font-weight: 700;
+            margin: 15px 0 8px;
+        }
+
+        .designer {
+            color: #666;
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            padding: 0 10px;
+        }
+
+        .form-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px 20px;
+            margin-top: 20px;
+        }
+
+        .form-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .recaptcha-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            min-height: 78px;
+        }
+
+        .btn-get-code {
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 35px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            max-width: 400px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+
+        .btn-get-code:hover:not(:disabled) {
+            background: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
+        }
+
+        .btn-get-code:disabled {
+            background: #9e9e9e;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .code-result {
+            margin-top: 25px;
+            padding: 20px;
+            background: #e8f5e9;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .code-result.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .code-label {
+            font-size: 14px;
+            color: #2e7d32;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .code-text {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2e7d32;
+            margin: 10px 0;
+            letter-spacing: 1.5px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #45a049;
+        }
+
+        .instructions {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .error-message {
+            color: #d32f2f;
+            background: #ffebee;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .sold-out-container {
+            display: none;
+            margin-top: 20px;
+            padding: 25px 20px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+        }
+
+        .sold-out-container.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .sold-out-icon {
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+
+        .sold-out-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .sold-out-message {
+            font-size: 13px;
+            margin-bottom: 18px;
+            opacity: 0.95;
+            line-height: 1.5;
+        }
+
+        .buy-now-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            color: #333;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .buy-now-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .play-store-icon {
+            width: 22px;
+            height: 22px;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2196F3;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-badge {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .product-image {
+                width: 150px;
+                height: 150px;
+            }
+
+            .code-text {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Product Image -->
+        <div class="product-image">
+            <img src="https://via.placeholder.com/180x180/667eea/ffffff?text=Product" alt="Product Image" id="productImage">
+        </div>
+
+        <!-- Logo (Optional) -->
+        <div class="logo">
+            <svg height="45" viewBox="0 0 135 40" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#4285F4" d="M10 15h4v10h-4z"/>
+                <path fill="#EA4335" d="M18 15h4v10h-4z"/>
+                <path fill="#FBBC04" d="M26 15h4v10h-4z"/>
+                <path fill="#34A853" d="M34 15h4v10h-4z"/>
+            </svg>
+        </div>
+
+        <!-- Product Title -->
+        <h1 id="productCode">JND0147</h1>
+        
+        <!-- Developer Name -->
+        <p class="designer" id="developerName">JacoNaudeDesign</p>
+        
+        <!-- Description -->
+        <p class="description" id="description">
+            Enjoy and please leave a review. If the code does not work, 
+            please allow a few hours and try again, could be a time zone 
+            delay from when codes went active.
+        </p>
+
+        <!-- Form Container -->
+        <div class="form-container">
+            <h2 class="form-title">Generate Your Coupon</h2>
+            
+            <!-- reCAPTCHA -->
+            <div class="recaptcha-container">
+                <div class="g-recaptcha" data-sitekey="YOUR_RECAPTCHA_SITE_KEY"></div>
+            </div>
+
+            <!-- Get Code Button -->
+            <button class="btn-get-code" id="getCodeBtn" onclick="generateCode()">
+                Get My Coupon
+            </button>
+
+            <!-- Loading Spinner -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px; color: #666; font-size: 14px;">Generating your code...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div class="error-message" id="errorMessage"></div>
+
+            <!-- Sold Out Container -->
+            <div class="sold-out-container" id="soldOutContainer">
+                <div class="sold-out-icon">😔</div>
+                <div class="sold-out-title">All Promo Codes Claimed!</div>
+                <div class="sold-out-message">
+                    Unfortunately, all promotional codes have been redeemed. 
+                    But you can still get this amazing product from the Play Store!
+                </div>
+                <a href="#" class="buy-now-btn" id="buyNowBtn" target="_blank">
+                    <svg class="play-store-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 20.5V3.5C3 2.91 3.34 2.39 3.84 2.15L13.69 12L3.84 21.85C3.34 21.61 3 21.09 3 20.5Z" fill="#4285F4"/>
+                        <path d="M16.81 15.12L6.05 21.34L14.54 12.85L16.81 15.12Z" fill="#34A853"/>
+                        <path d="M20.16 10.81C20.5 11.08 20.75 11.5 20.75 12C20.75 12.5 20.5 12.92 20.16 13.19L17.89 14.5L15.45 12.06L17.89 9.62L20.16 10.81Z" fill="#FBBC04"/>
+                        <path d="M6.05 2.66L16.81 8.88L14.54 11.15L6.05 2.66Z" fill="#EA4335"/>
+                    </svg>
+                    Buy Now on Play Store
+                </a>
+            </div>
+
+            <!-- Code Result -->
+            <div class="code-result" id="codeResult">
+                <p class="code-label">🎉 Your Promo Code:</p>
+                <div class="code-text" id="promoCode">XXXXX-XXXXX-XXXXX</div>
+                <button class="copy-btn" onclick="copyCode()">📋 Copy Code</button>
+                <div class="instructions">
+                    <strong>How to redeem:</strong><br>
+                    1. Open Google Play Store<br>
+                    2. Menu → Payments & subscriptions → Redeem code<br>
+                    3. Enter the code above
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION - CUSTOMIZE THESE VALUES
+        // ============================================
+        
+        const CONFIG = {
+            // Google Sheets Configuration
+            // IMPORTANT: Make sure your sheet is set to "Anyone with the link can view"
+            googleSheetId: 'YOUR_GOOGLE_SHEET_ID',  // Get this from your Google Sheet URL
+            sheetName: 'PromoCodes',  // Name of the sheet tab (default: PromoCodes)
+            
+            // Product customization
+            productName: 'JND0147',
+            developerName: 'JacoNaudeDesign',
+            productImageUrl: 'https://via.placeholder.com/180x180/667eea/ffffff?text=Watch+Face',
+            description: 'Enjoy and please leave a review. If the code does not work, please allow a few hours and try again, could be a time zone delay from when codes went active.',
+            
+            // Play Store link (for when codes run out)
+            playStoreUrl: 'https://play.google.com/store/apps/details?id=com.yourpackage.name',
+            
+            // reCAPTCHA site key (get from https://www.google.com/recaptcha/admin)
+            recaptchaSiteKey: 'YOUR_RECAPTCHA_SITE_KEY',
+        };
+
+        // ============================================
+        // GOOGLE SHEETS INTEGRATION
+        // ============================================
+
+        let allCodes = [];
+        let usedCodes = JSON.parse(localStorage.getItem('usedCodes') || '[]');
+
+        // Build the Google Sheets CSV export URL
+        function getSheetURL() {
+            return `https://docs.google.com/spreadsheets/d/${CONFIG.googleSheetId}/gviz/tq?tqx=out:csv&sheet=${CONFIG.sheetName}`;
+        }
+
+        // Fetch codes from Google Sheets
+        async function fetchCodesFromSheet() {
+            try {
+                const response = await fetch(getSheetURL());
+                const csvText = await response.text();
+                
+                // Parse CSV (simple parser for single column)
+                const lines = csvText.split('\n');
+                const codes = [];
+                
+                for (let i = 1; i < lines.length; i++) { // Skip header row
+                    const line = lines[i].trim();
+                    if (line) {
+                        // Remove quotes and clean up
+                        const code = line.replace(/"/g, '').trim();
+                        if (code && code.length > 0) {
+                            codes.push(code);
+                        }
+                    }
+                }
+                
+                allCodes = codes;
+                console.log(`Loaded ${codes.length} codes from Google Sheets`);
+                
+                // Check if all codes are already used
+                checkInitialState();
+                
+            } catch (error) {
+                console.error('Error fetching codes from Google Sheets:', error);
+                showError('Unable to load promo codes. Please try again later or contact support.');
+            }
+        }
+
+        function checkInitialState() {
+            const availableCodes = allCodes.filter(code => !usedCodes.includes(code));
+            if (availableCodes.length === 0 && allCodes.length > 0) {
+                showSoldOut();
+            }
+        }
+
+        function getAvailableCode() {
+            const availableCodes = allCodes.filter(code => !usedCodes.includes(code));
+            
+            if (availableCodes.length === 0) {
+                return null;
+            }
+            
+            // Return random available code
+            const randomIndex = Math.floor(Math.random() * availableCodes.length);
+            return availableCodes[randomIndex];
+        }
+
+        function markCodeAsUsed(code) {
+            usedCodes.push(code);
+            localStorage.setItem('usedCodes', JSON.stringify(usedCodes));
+        }
+
+        async function generateCode() {
+            // Verify reCAPTCHA
+            const recaptchaResponse = grecaptcha.getResponse();
+            
+            if (!recaptchaResponse) {
+                showError('Please complete the reCAPTCHA verification');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('getCodeBtn').disabled = true;
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('codeResult').classList.remove('show');
+            document.getElementById('soldOutContainer').classList.remove('show');
+
+            try {
+                // Simulate API delay for better UX
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const promoCode = getAvailableCode();
+                
+                if (!promoCode) {
+                    // All codes claimed - show sold out message
+                    showSoldOut();
+                    return;
+                }
+                
+                markCodeAsUsed(promoCode);
+
+                // Show the code
+                document.getElementById('promoCode').textContent = promoCode;
+                document.getElementById('codeResult').classList.add('show');
+                
+                // Reset reCAPTCHA
+                grecaptcha.reset();
+
+            } catch (error) {
+                showError(error.message || 'An error occurred. Please try again.');
+                grecaptcha.reset();
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('getCodeBtn').disabled = false;
+            }
+        }
+
+        function showSoldOut() {
+            // Hide other elements
+            document.getElementById('loading').classList.remove('show');
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('codeResult').classList.remove('show');
+            
+            // Show sold out container
+            document.getElementById('soldOutContainer').classList.add('show');
+            
+            // Disable the get code button
+            const getCodeBtn = document.getElementById('getCodeBtn');
+            getCodeBtn.disabled = true;
+            getCodeBtn.textContent = 'All Codes Claimed';
+            getCodeBtn.style.background = '#9e9e9e';
+            
+            // Reset reCAPTCHA
+            grecaptcha.reset();
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        function copyCode() {
+            const codeText = document.getElementById('promoCode').textContent;
+            navigator.clipboard.writeText(codeText).then(() => {
+                const copyBtn = event.target;
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✓ Copied!';
+                copyBtn.style.background = '#2e7d32';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.style.background = '#4CAF50';
+                }, 2000);
+            });
+        }
+
+        // Initialize page with custom values
+        window.onload = function() {
+            document.getElementById('productCode').textContent = CONFIG.productName;
+            document.getElementById('developerName').textContent = CONFIG.developerName;
+            document.getElementById('description').textContent = CONFIG.description;
+            document.getElementById('productImage').src = CONFIG.productImageUrl;
+            
+            // Update Play Store link
+            document.getElementById('buyNowBtn').href = CONFIG.playStoreUrl;
+            
+            // Update reCAPTCHA site key
+            const recaptchaDiv = document.querySelector('.g-recaptcha');
+            recaptchaDiv.setAttribute('data-sitekey', CONFIG.recaptchaSiteKey);
+            
+            // Fetch codes from Google Sheets
+            fetchCodesFromSheet();
+        };
+    </script>
+</body>
+</html>
